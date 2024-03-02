@@ -3,7 +3,7 @@ import 'dart:convert';
 class EmployeeModel {
     final int id;
     final String name;
-    final int managerId;
+    final int? managerId;
 
     EmployeeModel({
         required this.id,

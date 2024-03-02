@@ -26,7 +26,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 isFloating: true,
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                title: const Text("Employee Search"), onSearch: (v) {}),
+                openOverlayOnSearch: true,
+                debounceDuration: const Duration(seconds: 1),
+                suggestions: state is EmployeeLoaded ? state.employeeData.map((e) => e.name).toList() : [],
+                title: const Text("Employee Search"), onSearch: (v) {},
+              ),
             body: Builder(builder: (context) {
               if(state is EmployeeLoading){
                 return Center(

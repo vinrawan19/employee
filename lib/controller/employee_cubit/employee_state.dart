@@ -11,7 +11,10 @@ final class EmployeeLoading extends EmployeeState {}
 
 final class EmployeeEmpty extends EmployeeState {}
 
-final class EmployeeLoaded extends EmployeeState {}
+final class EmployeeLoaded extends EmployeeState {
+  final List<EmployeeModel> employeeData;
+  EmployeeLoaded({required this.employeeData});
+}
 
 final class EmployeeError extends EmployeeState {
   final String message;
