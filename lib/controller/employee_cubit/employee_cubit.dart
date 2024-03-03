@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart';
 import 'package:meta/meta.dart';
-import 'package:collection/collection.dart';
 
 part 'employee_state.dart';
 
@@ -31,7 +30,22 @@ class EmployeeCubit extends Cubit<EmployeeState> {
     var currentState = state as EmployeeLoaded;
     emit(EmployeeLoading());
     EmployeeModel result = employeeDataSort(currentState.employeeData, selectedEmployee);
-    print(result);
+    TreeNode treeNode = renderTreeNode(result);
+    emit(currentState.copyWith(treeNodes: [treeNode]));
+  }
+
+  TreeNode renderTreeNode(EmployeeModel sortedEmployee){
+    EmployeeModel sortedEmployeeData = sortedEmployee;
+    List<TreeNode> groupedEmployeeNode = [];
+    late TreeNode treeState;
+    for(var i in sortedEmployeeData.children){
+      groupedEmployeeNode.add(renderTreeNode(i));
+    }
+    treeState = TreeNode(
+      content: Text(sortedEmployee.name),
+      children: groupedEmployeeNode
+    );
+    return treeState;
   }
 
   EmployeeModel employeeDataSort(List<EmployeeModel> dataEmployee, EmployeeModel employee, {EmployeeModel? empState}) {
