@@ -4,6 +4,7 @@ import 'package:employee_search/model/employee_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart';
 import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 
 part 'employee_state.dart';
 
@@ -21,33 +22,33 @@ class EmployeeCubit extends Cubit<EmployeeState> {
     var currentState = state as EmployeeLoaded;
     emit(EmployeeLoading());
     List<EmployeeModel> employeeDataSuggestions = currentState.employeeData.where((e) => e.name.contains(keyword.toLowerCase())).toList();
+    emit(currentState);
     return employeeDataSuggestions;
   }
 
   employeeSelected(EmployeeModel selectedEmployee){
     var currentState = state as EmployeeLoaded;
-
     List<TreeNode> root = [];
-    List<EmployeeModel> employeeGrouping = [];
     emit(EmployeeLoading());
+    EmployeeModel? tempLoopEmployee = selectedEmployee;
     while(true){
-      EmployeeModel tempLoopEmployee = selectedEmployee;
-      List<EmployeeModel> employeeNodes = currentState.employeeData.where((e) => e.managerId == tempLoopEmployee.managerId).toList();
-      EmployeeModel manager = currentState.employeeData.firstWhere((e) => e.id == employeeNodes.first.managerId);
-      if(tempLoopEmployee.managerId == null){
-        employeeGrouping.add(tempLoopEmployee);
-        for(var e in employeeGrouping){
-          List<TreeNode> children = [];
-          if(e.children != null){
-            e.children!.map((e)=>children.add(TreeNode(content: Text(e.name))));
-          }
-          root.add(TreeNode(content: Text(e.name), children: children));
+      List<EmployeeModel> employeeGrouping = currentState.employeeData.where((e) => e.managerId == tempLoopEmployee!.managerId).toList();
+      EmployeeModel? manager = currentState.employeeData.firstWhereOrNull((e) => e.id == employeeGrouping.first.managerId);
+      if(manager != null){
+        tempLoopEmployee = currentState.employeeData.firstWhereOrNull((e) => e.id == manager.managerId);
+        manager.children.addAll(employeeGrouping);
+        root.add(TreeNode(
+          content: Text(manager.name),
+          children: manager.children.map((e) => TreeNode(content: Text(e.name))).toList()
+        ));
+        if(tempLoopEmployee == null){
+          emit(currentState.copyWith(treeNodes: root));
+          break;
         }
-        emit(currentState);
-        return root;
+      }else{
+        emit(currentState.copyWith(treeNodes: root));
+        break;
       }
-      employeeGrouping.add(EmployeeModel(id: manager.id, name: manager.name, managerId: manager.managerId, children: employeeNodes));
-      tempLoopEmployee = manager;
     }
   }
 }

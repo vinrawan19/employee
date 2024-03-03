@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   TypeAheadField<EmployeeModel>(
                     suggestionsCallback: (search) => context.read<EmployeeCubit>().employeeSearch(search),
-                    onSelected: (value) => {}, 
+                    onSelected: (value) => context.read<EmployeeCubit>().employeeSelected(value), 
                     itemBuilder: (context, value) {
                       return ListTile(
                         title: Text(value.name),
@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Container(
                           height: 70.h,
                           child: TreeView(
-                            nodes: context.read<EmployeeCubit>().employeeSelected(state.employeeData.last),
+                            nodes: state.treeNodes,
                           ),
                         ),
                       );

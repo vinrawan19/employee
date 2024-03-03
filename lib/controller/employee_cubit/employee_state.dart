@@ -13,15 +13,21 @@ final class EmployeeEmpty extends EmployeeState {}
 
 final class EmployeeLoaded extends EmployeeState {
   final List<EmployeeModel> employeeData;
+  final List<TreeNode> treeNodes;
 
   // final 
-  EmployeeLoaded({required this.employeeData});
+  EmployeeLoaded({
+    required this.employeeData, 
+    List<TreeNode>? treeNodes
+  }) : treeNodes = treeNodes ?? [];
 
     EmployeeLoaded copyWith({
     List<EmployeeModel>? employeeData, 
+    List<TreeNode>? treeNodes, 
     }) => 
       EmployeeLoaded(
         employeeData: employeeData ?? this.employeeData,
+        treeNodes: treeNodes ?? this.treeNodes
       );
 }
 

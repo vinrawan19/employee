@@ -4,14 +4,14 @@ class EmployeeModel {
     final int id;
     final String name;
     final int? managerId;
-    final List<EmployeeModel>? children;
+    final List<EmployeeModel> children;
 
     EmployeeModel({
         required this.id,
         required this.name,
         required this.managerId,
-        this.children
-    });
+        List<EmployeeModel>? children
+    }): children = children ?? [];
 
     EmployeeModel copyWith({
         int? id,
