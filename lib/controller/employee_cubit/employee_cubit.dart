@@ -30,11 +30,11 @@ class EmployeeCubit extends Cubit<EmployeeState> {
   employeeSelected(EmployeeModel selectedEmployee){
     var currentState = state as EmployeeLoaded;
     emit(EmployeeLoading());
-    EmployeeModel result = employeeChecker(currentState.employeeData, selectedEmployee, null);
+    EmployeeModel result = employeeDataSort(currentState.employeeData, selectedEmployee);
     print(result);
   }
 
-  EmployeeModel employeeChecker(List<EmployeeModel> dataEmployee, EmployeeModel employee, EmployeeModel? empState) {
+  EmployeeModel employeeDataSort(List<EmployeeModel> dataEmployee, EmployeeModel employee, {EmployeeModel? empState}) {
     EmployeeModel selectedEmployee = employee;
     List<EmployeeModel> identicalManagerEmployee = [];
     EmployeeModel? employeeState = empState;
@@ -59,7 +59,7 @@ class EmployeeCubit extends Cubit<EmployeeState> {
 
     // START CHECK UPPER HIERARCHY
     if(selectedEmployeeManager.managerId != null){
-      employeeState = employeeChecker(dataEmployee, selectedEmployeeManager, employeeState);
+      employeeState = employeeDataSort(dataEmployee, selectedEmployeeManager, empState: employeeState);
     }
     // END CHECK UPPER HIERARCHY
     
