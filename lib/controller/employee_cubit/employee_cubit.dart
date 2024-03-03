@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:employee_search/data/employee_data.dart';
 import 'package:employee_search/model/employee_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart';
 import 'package:meta/meta.dart';
 import 'package:collection/collection.dart';
@@ -28,27 +29,41 @@ class EmployeeCubit extends Cubit<EmployeeState> {
 
   employeeSelected(EmployeeModel selectedEmployee){
     var currentState = state as EmployeeLoaded;
-    List<TreeNode> root = [];
     emit(EmployeeLoading());
-    EmployeeModel? tempLoopEmployee = selectedEmployee;
-    while(true){
-      List<EmployeeModel> employeeGrouping = currentState.employeeData.where((e) => e.managerId == tempLoopEmployee!.managerId).toList();
-      EmployeeModel? manager = currentState.employeeData.firstWhereOrNull((e) => e.id == employeeGrouping.first.managerId);
-      if(manager != null){
-        tempLoopEmployee = currentState.employeeData.firstWhereOrNull((e) => e.id == manager.managerId);
-        manager.children.addAll(employeeGrouping);
-        root.add(TreeNode(
-          content: Text(manager.name),
-          children: manager.children.map((e) => TreeNode(content: Text(e.name))).toList()
-        ));
-        if(tempLoopEmployee == null){
-          emit(currentState.copyWith(treeNodes: root));
-          break;
+    EmployeeModel result = employeeChecker(currentState.employeeData, selectedEmployee, null);
+    print(result);
+  }
+
+  EmployeeModel employeeChecker(List<EmployeeModel> dataEmployee, EmployeeModel employee, EmployeeModel? empState) {
+    EmployeeModel selectedEmployee = employee;
+    List<EmployeeModel> identicalManagerEmployee = [];
+    EmployeeModel? employeeState = empState;
+    EmployeeModel selectedEmployeeManager = dataEmployee.firstWhere((e) => e.id == selectedEmployee.managerId);
+    
+    // START GROUP IDENTICAL MANAGER
+    for(var e in dataEmployee){
+      if(e.managerId == selectedEmployee.managerId){
+        if(e.id == selectedEmployee.id){
+          e.isDirectReport = true;
         }
-      }else{
-        emit(currentState.copyWith(treeNodes: root));
-        break;
+        identicalManagerEmployee.add(e);
       }
     }
+    selectedEmployeeManager.isDirectReport = true;
+    selectedEmployeeManager.children.addAll(identicalManagerEmployee);
+    // END GROUP IDENTICAL MANAGER
+
+    // START UPDATING STATE
+    employeeState = selectedEmployeeManager;
+    // END UPDATING STATE
+
+    // START CHECK UPPER HIERARCHY
+    if(selectedEmployeeManager.managerId != null){
+      employeeState = employeeChecker(dataEmployee, selectedEmployeeManager, employeeState);
+    }
+    // END CHECK UPPER HIERARCHY
+    
+    return employeeState;
   }
 }
+
