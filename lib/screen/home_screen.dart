@@ -17,70 +17,68 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<EmployeeCubit, EmployeeState>(
-      listener: (context, state) {
-        // TODO: implement listener
-      },
+    return Scaffold(body: BlocBuilder<EmployeeCubit, EmployeeState>(
       builder: (context, state) {
-        return SafeArea(
-          child: Scaffold(
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  TypeAheadField<EmployeeModel>(
-                    suggestionsCallback: (search) => context.read<EmployeeCubit>().employeeSearch(search),
-                    onSelected: (value) => context.read<EmployeeCubit>().employeeSelected(value), 
-                    itemBuilder: (context, value) {
-                      return ListTile(
-                        title: Text(value.name),
-                        subtitle: Text("ID: ${value.id}"),
-                      );
-                    },
-                    builder: (context, controller, focusNode) {
-                      return TextFormField(
-                        controller: controller,
-                        focusNode: focusNode,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Employee'
-                        ),
-                      );
-                    },
-                  ),
-                  Builder(builder: (context) {
-                    if(state is EmployeeLoading){
-                      return Center(
-                        child: SizedBox(
-                          height: 10.h,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              LoadingAnimationWidget.horizontalRotatingDots(color: Colors.blue, size: 7.h),
-                              const Text("Please wait, loading your data!")
-                            ],
-                          ),
-                        ),
-                      );
-                    }else if(state is EmployeeLoaded){
-                      return SingleChildScrollView(
-                        child: Container(
-                          height: 70.h,
-                          child: TreeView(
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SafeArea(
+            child: SizedBox(
+              height: 100.h,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TypeAheadField<EmployeeModel>(
+                      suggestionsCallback: (search) => context.read<EmployeeCubit>().employeeSearch(search),
+                      onSelected: (value) =>context.read<EmployeeCubit>().employeeSelected(value),
+                      itemBuilder: (context, value) {
+                        return ListTile(
+                          title: Text(value.name),
+                          subtitle: Text("ID: ${value.id}"),
+                        );
+                      },
+                      builder: (context, controller, focusNode) {
+                        return TextFormField(
+                          controller: controller,
+                          focusNode: focusNode,
+                          decoration: const InputDecoration(
+                              border: OutlineInputBorder(), labelText: 'Employee'),
+                        );
+                      },
+                    ),
+                    Builder(
+                      builder: (context) {
+                        if (state is EmployeeLoading) {
+                          return Center(
+                            child: SizedBox(
+                              height: 10.h,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  LoadingAnimationWidget.horizontalRotatingDots(
+                                      color: Colors.blue, size: 7.h),
+                                  const Text("Please wait, loading your data!")
+                                ],
+                              ),
+                            ),
+                          );
+                        } else if (state is EmployeeLoaded) {
+                          return TreeView(
+                            key: GlobalKey(),
+                            treeController: TreeController(),
                             nodes: state.treeNodes,
-                          ),
-                        ),
-                      );
-                    }
-                    return Container();
-                  },),
-                ],
+                          );
+                        }
+                        return Container();
+                      },
+                    ),
+                  ],
+                ),
               ),
-            )
+            ),
           ),
         );
       },
-    );
+    ));
   }
 }

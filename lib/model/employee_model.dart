@@ -4,26 +4,30 @@ class EmployeeModel {
     final int id;
     final String name;
     final int? managerId;
-    final List<EmployeeModel> children;
+    List<EmployeeModel> children;
+    bool isDirectReport;
 
     EmployeeModel({
         required this.id,
         required this.name,
         required this.managerId,
-        List<EmployeeModel>? children
-    }): children = children ?? [];
+        List<EmployeeModel>? children,
+        bool? isDirectReport,
+    }): children = children ?? [], isDirectReport = isDirectReport ?? false;
 
     EmployeeModel copyWith({
         int? id,
         String? name,
         int? managerId,
-        List<EmployeeModel>? children
+        List<EmployeeModel>? children,
+        bool? isDirectReport
     }) => 
         EmployeeModel(
             id: id ?? this.id,
             name: name ?? this.name,
             managerId: managerId ?? this.managerId,
-            children: children ?? this.children
+            children: children ?? this.children,
+            isDirectReport: isDirectReport ?? this.isDirectReport
         );
 
     factory EmployeeModel.fromRawJson(String str) => EmployeeModel.fromJson(json.decode(str));
@@ -34,13 +38,29 @@ class EmployeeModel {
         id: json["id"],
         name: json["name"],
         managerId: json["managerId"],
-        children: json["children"]
+        children: json["children"],
+        isDirectReport: json["isDirectReport"]
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "name": name,
         "managerId": managerId,
-        "children": children
+        "children": children,
+        "isDirectReport": isDirectReport
     };
+
+        EmployeeModel deepCopy() {
+        List<EmployeeModel> copiedChildren = [];
+        for (var child in children) {
+            copiedChildren.add(child.deepCopy());
+        }
+        return EmployeeModel(
+            id: id,
+            name: name,
+            managerId: managerId,
+            children: copiedChildren,
+            isDirectReport: isDirectReport,
+        );
+    }
 }
