@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:employee_search/data/employee_data.dart';
 import 'package:employee_search/model/employee_model.dart';
+import 'package:employee_search/util/employee_util.dart';
+import 'package:employee_search/util/tree_node_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_simple_treeview/flutter_simple_treeview.dart';
@@ -26,58 +28,16 @@ class EmployeeCubit extends Cubit<EmployeeState> {
     return employeeDataSuggestions;
   }
 
-  employeeSelected(EmployeeModel selectedEmployee){
-    var currentState = state as EmployeeLoaded;
-    emit(EmployeeLoading());
-    EmployeeModel result = employeeDataSort(currentState.employeeData, selectedEmployee);
-    TreeNode treeNode = renderTreeNode(result);
-    emit(currentState.copyWith(treeNodes: [treeNode]));
-  }
+employeeSelected(EmployeeModel selectedEmployee){
+  var currentState = state as EmployeeLoaded;
+  emit(EmployeeLoading());
+  List<EmployeeModel> employeeDataCopy = currentState.employeeData.map((employee) => employee.deepCopy()).toList();
 
-  TreeNode renderTreeNode(EmployeeModel sortedEmployee){
-    EmployeeModel sortedEmployeeData = sortedEmployee;
-    List<TreeNode> groupedEmployeeNode = [];
-    late TreeNode treeState;
-    for(var i in sortedEmployeeData.children){
-      groupedEmployeeNode.add(renderTreeNode(i));
-    }
-    treeState = TreeNode(
-      content: Text(sortedEmployee.name),
-      children: groupedEmployeeNode
-    );
-    return treeState;
-  }
+  EmployeeModel result = EmployeeUtil.sort(employeeDataCopy, selectedEmployee);
 
-  EmployeeModel employeeDataSort(List<EmployeeModel> dataEmployee, EmployeeModel employee, {EmployeeModel? empState}) {
-    EmployeeModel selectedEmployee = employee;
-    List<EmployeeModel> identicalManagerEmployee = [];
-    EmployeeModel? employeeState = empState;
-    EmployeeModel selectedEmployeeManager = dataEmployee.firstWhere((e) => e.id == selectedEmployee.managerId);
-    
-    // START GROUP IDENTICAL MANAGER
-    for(var e in dataEmployee){
-      if(e.managerId == selectedEmployee.managerId){
-        if(e.id == selectedEmployee.id){
-          e.isDirectReport = true;
-        }
-        identicalManagerEmployee.add(e);
-      }
-    }
-    selectedEmployeeManager.isDirectReport = true;
-    selectedEmployeeManager.children.addAll(identicalManagerEmployee);
-    // END GROUP IDENTICAL MANAGER
+  TreeNode treeNode = TreeNodeUtil.render(result);
 
-    // START UPDATING STATE
-    employeeState = selectedEmployeeManager;
-    // END UPDATING STATE
-
-    // START CHECK UPPER HIERARCHY
-    if(selectedEmployeeManager.managerId != null){
-      employeeState = employeeDataSort(dataEmployee, selectedEmployeeManager, empState: employeeState);
-    }
-    // END CHECK UPPER HIERARCHY
-    
-    return employeeState;
-  }
+  emit(EmployeeLoaded(employeeData: currentState.employeeData, treeNodes: [treeNode]));
+}
 }
 

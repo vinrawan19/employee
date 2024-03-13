@@ -49,4 +49,18 @@ class EmployeeModel {
         "children": children,
         "isDirectReport": isDirectReport
     };
+
+        EmployeeModel deepCopy() {
+        List<EmployeeModel> copiedChildren = [];
+        for (var child in children) {
+            copiedChildren.add(child.deepCopy());
+        }
+        return EmployeeModel(
+            id: id,
+            name: name,
+            managerId: managerId,
+            children: copiedChildren,
+            isDirectReport: isDirectReport,
+        );
+    }
 }
